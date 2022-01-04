@@ -1,0 +1,6 @@
+# Xinlake
+/.vs
+/.build
+/.target
+
+*.user

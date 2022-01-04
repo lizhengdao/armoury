@@ -1,0 +1,78 @@
+apply plugin: "com.android.library"
+if (System.getProperty("user.name").toLowerCase().contains("xinlake")) {
+    apply from: "$rootDir/scripts/publish-sonatype.gradle"
+}
+
+android {
+    buildToolsVersion rootProject.buildToolsVersion
+    compileSdkVersion rootProject.compileSdkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+        versionCode rootProject.versionCode
+        versionName rootProject.versionName
+
+        buildConfigField "String", "versionName", "\"${rootProject.versionName}\""
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    // custom apk name and copy apk
+    libraryVariants.all { variant ->
+        variant.outputs.each { output ->
+            if (output.outputFileName != null && output.outputFileName.endsWith('.aar')) {
+                // copy aar
+                variant.assembleProvider.get().doLast {
+                    def aarVersion = android.defaultConfig.versionName
+                    copy {
+                        from output.outputFile
+                        into "../.aar"
+                        rename { String fileName ->
+                            "${applicationId}-${aarVersion}.aar"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["java"]
+            res.srcDirs = ["res"]
+            aidl.srcDirs = ["aidl"]
+            renderscript.srcDirs = ["rs"]
+            jniLibs.srcDirs = ["jniLibs"]
+            assets.srcDirs = ["assets"]
+        }
+    }
+}
+
+dependencies {
+    // AndroidX
+    implementation "androidx.activity:activity:1.4.0"
+    implementation 'androidx.fragment:fragment:1.4.0'
+    implementation "androidx.constraintlayout:constraintlayout:2.1.2"
+
+    // CameraX, the core library is included indirectly by camera-camera2
+    implementation "androidx.camera:camera-camera2:1.1.0-alpha12"
+    implementation "androidx.camera:camera-lifecycle:1.1.0-alpha12"
+    implementation "androidx.camera:camera-view:1.0.0-alpha32"
+    implementation "androidx.camera:camera-extensions:1.0.0-alpha32"
+
+    // vision
+    implementation "com.google.mlkit:barcode-scanning:17.0.1"
+    implementation 'com.google.mlkit:text-recognition-chinese:16.0.0-beta2'
+    implementation "com.google.zxing:core:3.4.1"
+}

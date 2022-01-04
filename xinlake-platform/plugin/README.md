@@ -1,0 +1,1 @@
+Platform implements collection

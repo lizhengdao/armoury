@@ -1,0 +1,7 @@
+# Xinlake
+/.vs
+/.build
+/.target
+/packages
+
+*.user
