@@ -1,9 +1,9 @@
 # cSpell:disable
 
 name: window_interface
-version: 0.1.4
+version: 0.2.0
 
-description: A set of interfaces for controlling native window.
+description: A set of interfaces for controlling the native window.
 repository: https://github.com/xinlake/armoury/tree/main/window-interface/plugin
 issue_tracker: https://github.com/xinlake/armoury/issues
 homepage: https://xinlake.dev

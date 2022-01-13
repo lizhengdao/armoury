@@ -1,4 +1,7 @@
-## 0.1.4 
+## 0.2.0
+* Add window position support.
+
+## 0.1.4
 * Improvements for reliability.
 
 ## 0.1.3

@@ -8,6 +8,7 @@ set(PLUGIN_NAME "window_interface_plugin")
 
 add_library(${PLUGIN_NAME} SHARED
   "window_interface_plugin.cpp"
+  "window_placement.cpp"
 )
 apply_standard_settings(${PLUGIN_NAME})
 set_target_properties(${PLUGIN_NAME} PROPERTIES

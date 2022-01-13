@@ -3,29 +3,42 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'window_placement.dart';
+
 /// Only supports windows platform.
 class WindowInterface {
   static const MethodChannel _channel = MethodChannel('window_interface');
 
-  static Future<Size?> getWindowSize() async {
-    final Map? map = await _channel.invokeMapMethod("getWindowSize");
+  static Future<WindowPlacement?> getWindowPlacement() async {
+    final map = await _channel.invokeMapMethod<String, int>("getWindowPlacement");
     if (map != null) {
-      int width = map["width"];
-      int height = map["height"];
-      return Size(width.toDouble(), height.toDouble());
+      return WindowPlacement(
+        offsetX: map["offsetX"]!,
+        offsetY: map["offsetY"]!,
+        width: map["width"]!,
+        height: map["height"]!,
+      );
     }
     return null;
   }
 
-  static Future<void> setWindowSize(int width, int height) async {
-    await _channel.invokeMethod("setWindowSize", {
-      "width": width,
-      "height": height,
-    });
+  static Future<bool> setWindowPlacement(WindowPlacement placement) async {
+    try {
+      await _channel.invokeMethod("setWindowPlacement", {
+        "offsetX": placement.offsetX,
+        "offsetY": placement.offsetY,
+        "width": placement.width,
+        "height": placement.height,
+      });
+      return true;
+    } catch (exception) {
+      // such as invalid arguments
+      return false;
+    }
   }
 
-  static Future<bool?> getFullScreen() async {
-    final result = await _channel.invokeMethod("getFullScreen");
+  static Future<bool> getFullScreen() async {
+    bool result = await _channel.invokeMethod("getFullScreen");
     return result;
   }
 
@@ -38,20 +51,25 @@ class WindowInterface {
   }
 
   static Future<Size?> getWindowMinSize() async {
-    final Map? map = await _channel.invokeMapMethod('getWindowMinSize');
+    final map = await _channel.invokeMapMethod<String, int>('getWindowMinSize');
     if (map != null) {
-      int width = map["width"];
-      int height = map["height"];
+      int width = map["width"]!;
+      int height = map["height"]!;
       return Size(width.toDouble(), height.toDouble());
     }
     return null;
   }
 
-  static Future<void> setWindowMinSize(int width, int height) async {
-    await _channel.invokeMethod('setWindowMinSize', {
-      'width': width,
-      'height': height,
-    });
+  static Future<bool> setWindowMinSize(int width, int height) async {
+    try {
+      await _channel.invokeMethod('setWindowMinSize', {
+        'width': width,
+        'height': height,
+      });
+      return true;
+    } catch (exception) {
+      return false;
+    }
   }
 
   static Future<void> resetWindowMinSize() async {
@@ -59,20 +77,25 @@ class WindowInterface {
   }
 
   static Future<Size?> getWindowMaxSize() async {
-    final Map? map = await _channel.invokeMapMethod('getWindowMaxSize');
+    final map = await _channel.invokeMapMethod<String, int>('getWindowMaxSize');
     if (map != null) {
-      int width = map["width"];
-      int height = map["height"];
+      int width = map["width"]!;
+      int height = map["height"]!;
       return Size(width.toDouble(), height.toDouble());
     }
     return null;
   }
 
-  static Future<void> setWindowMaxSize(int width, int height) async {
-    await _channel.invokeMethod('setWindowMaxSize', {
-      'width': width,
-      'height': height,
-    });
+  static Future<bool> setWindowMaxSize(int width, int height) async {
+    try {
+      await _channel.invokeMethod('setWindowMaxSize', {
+        'width': width,
+        'height': height,
+      });
+      return true;
+    } catch (exception) {
+      return false;
+    }
   }
 
   static Future<void> resetWindowMaxSize() async {
@@ -81,10 +104,5 @@ class WindowInterface {
 
   static Future<void> setStayOnTop(bool isStayOnTop) async {
     await _channel.invokeMethod('setStayOnTop', {'isStayOnTop': isStayOnTop});
-  }
-
-  static Future<String?> get platformVersion async {
-    final String? version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
   }
 }

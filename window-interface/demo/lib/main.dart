@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:window_interface/window_interface.dart';
+import 'package:window_interface/window_placement.dart';
 
 void main() {
   runApp(const WindowInterfaceDemo());
@@ -13,290 +14,475 @@ class WindowInterfaceDemo extends StatefulWidget {
 }
 
 class _WindowInterfaceState extends State<WindowInterfaceDemo> {
+  // current values
+  //
   bool? _isFullScreen;
-  Size? _windowSize;
-  Size? _windowMinSize;
-  Size? _windowMaxSize;
+  Size? _minSize;
+  Size? _maxSize;
+  WindowPlacement? _windowPlacement;
 
-  int _setWindowWidth = 800;
-  int _setWindowHeight = 600;
-  int _setWindowMinWidth = 650;
-  int _setWindowMinHeight = 500;
-  int _setWindowMaxWidth = 1600;
-  int _setWindowMaxHeight = 900;
-  bool _setFullScreen = false;
-  bool _setTopMost = false;
+  // target values
+  //
+  bool _isTopMost2 = false;
+  bool _isFullScreen2 = false;
+  int _minWidth2 = 650;
+  int _minHeight2 = 500;
+  int _maxWidth2 = 1600;
+  int _maxHeight2 = 900;
 
-  TableRow _rowGetWindowSize() {
-    return TableRow(
+  final _windowPlacement2 = WindowPlacement(
+    offsetX: 100,
+    offsetY: 100,
+    width: 800,
+    height: 600,
+  );
+
+  Widget _buildPlacementGet() {
+    return Column(
       children: [
-        TextButton(
-          onPressed: () async {
-            var size = await WindowInterface.getWindowSize();
-            setState(() => _windowSize = size);
-          },
-          child: const Text("getWindowSize"),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text.rich(
+              TextSpan(children: <InlineSpan>[
+                const WidgetSpan(
+                  child: Text(
+                    'left: ',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+                WidgetSpan(
+                  child: Text("${_windowPlacement?.offsetX}, "),
+                ),
+                const WidgetSpan(
+                  child: Text(
+                    'top: ',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+                WidgetSpan(
+                  child: Text("${_windowPlacement?.offsetY}, "),
+                ),
+                const WidgetSpan(
+                  child: Text(
+                    'width: ',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+                WidgetSpan(
+                  child: Text("${_windowPlacement?.width}, "),
+                ),
+                const WidgetSpan(
+                  child: Text(
+                    'height: ',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+                WidgetSpan(
+                  child: Text("${_windowPlacement?.height}"),
+                ),
+              ]),
+            ),
+          ],
         ),
-        Text("${_windowSize?.width.toInt()}, ${_windowSize?.height.toInt()}"),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () async {
+            var placement = await WindowInterface.getWindowPlacement();
+            setState(() => _windowPlacement = placement);
+          },
+          child: const Text("getWindowPlacement"),
+        ),
       ],
     );
   }
 
-  TableRow _rowSetWindowSize(double maxEditHeight) {
-    return TableRow(
+  Widget _buildPlacementSet() {
+    return Column(
       children: [
-        TextButton(
-          onPressed: () async => await WindowInterface.setWindowSize(
-            _setWindowWidth,
-            _setWindowHeight,
-          ),
-          child: const Text("setWindowSize"),
-        ),
         Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  prefixText: "width: ",
-                  constraints: BoxConstraints(maxHeight: maxEditHeight),
+            SizedBox(
+              width: 50,
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  label: Text("left"),
                 ),
-                controller: TextEditingController(text: "$_setWindowWidth"),
-                onChanged: (value) {
-                  int? width = int.tryParse(value);
-                  if (width != null) _setWindowWidth = width;
+                initialValue: "${_windowPlacement2.offsetX}",
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  if (value != null) {
+                    final offsetX = int.tryParse(value);
+                    if (offsetX != null) {
+                      _windowPlacement2.offsetX = offsetX;
+                      return null;
+                    }
+                  }
+                  return "Invalid";
                 },
               ),
             ),
             const SizedBox(width: 10),
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  prefixText: "height: ",
-                  constraints: BoxConstraints(maxHeight: maxEditHeight),
+            SizedBox(
+              width: 50,
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  label: Text("top"),
                 ),
-                controller: TextEditingController(text: "$_setWindowHeight"),
-                onChanged: (value) {
-                  int? height = int.tryParse(value);
-                  if (height != null) _setWindowHeight = height;
+                initialValue: "${_windowPlacement2.offsetY}",
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  if (value != null) {
+                    final offsetY = int.tryParse(value);
+                    if (offsetY != null) {
+                      _windowPlacement2.offsetY = offsetY;
+                      return null;
+                    }
+                  }
+                  return "Invalid";
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            SizedBox(
+              width: 50,
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  label: Text("width"),
+                ),
+                initialValue: "${_windowPlacement2.width}",
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  if (value != null) {
+                    final width = int.tryParse(value);
+                    if (width != null) {
+                      _windowPlacement2.width = width;
+                      return null;
+                    }
+                  }
+                  return "Invalid";
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            SizedBox(
+              width: 50,
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  label: Text("height"),
+                ),
+                initialValue: "${_windowPlacement2.height}",
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  if (value != null) {
+                    final height = int.tryParse(value);
+                    if (height != null) {
+                      _windowPlacement2.height = height;
+                      return null;
+                    }
+                  }
+                  return "Invalid";
                 },
               ),
             ),
           ],
         ),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () async => await WindowInterface.setWindowPlacement(_windowPlacement2),
+          child: const Text("setWindowPlacement"),
+        ),
       ],
     );
   }
 
-  TableRow _rowGetFullScreen() {
-    return TableRow(
+  Widget _buildFullScreen() {
+    return Column(
       children: [
-        TextButton(
+        Text.rich(
+          TextSpan(
+            children: <InlineSpan>[
+              const WidgetSpan(
+                child: Text(
+                  'full screen: ',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              WidgetSpan(
+                child: Text("$_isFullScreen"),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
           onPressed: () async {
             var isFullScreen = await WindowInterface.getFullScreen();
             setState(() => _isFullScreen = isFullScreen);
           },
           child: const Text("getFullScreen"),
         ),
-        Text("$_isFullScreen"),
-      ],
-    );
-  }
-
-  TableRow _rowSetFullScreen() {
-    return TableRow(
-      children: [
-        TableCell(
-          verticalAlignment: TableCellVerticalAlignment.middle,
-          child: TextButton(
-            onPressed: () async => WindowInterface.setFullScreen(_setFullScreen),
-            child: const Text("setFullScreen"),
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'full screen',
+              style: TextStyle(color: Colors.grey),
+            ),
+            Switch(
+              value: _isFullScreen2,
+              onChanged: (value) {
+                setState(() => _isFullScreen2 = value);
+              },
+            ),
+          ],
         ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Switch(
-            value: _setFullScreen,
-            onChanged: (value) {
-              setState(() => _setFullScreen = value);
-            },
-          ),
+        ElevatedButton(
+          onPressed: () async => WindowInterface.setFullScreen(_isFullScreen2),
+          child: const Text("setFullScreen"),
         ),
-      ],
-    );
-  }
-
-  TableRow _rowToggleFullScreen() {
-    return TableRow(
-      children: [
-        TextButton(
+        const SizedBox(height: 10),
+        ElevatedButton(
           onPressed: () async => WindowInterface.toggleFullScreen(),
           child: const Text("toggleFullScreen"),
         ),
-        const Text("void"),
       ],
     );
   }
 
-  TableRow _rowGetMinWindowSize() {
-    return TableRow(
+  Widget _buildMinSizeGet() {
+    return Column(
       children: [
-        TextButton(
+        Text.rich(
+          TextSpan(
+            children: <InlineSpan>[
+              const WidgetSpan(
+                child: Text(
+                  'min width: ',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              WidgetSpan(
+                child: Text("${_minSize?.width.toInt()}, "),
+              ),
+              const WidgetSpan(
+                child: Text(
+                  'min height: ',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              WidgetSpan(
+                child: Text("${_minSize?.height.toInt()}"),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
           onPressed: () async {
             var size = await WindowInterface.getWindowMinSize();
-            setState(() => _windowMinSize = size);
+            setState(() => _minSize = size);
           },
           child: const Text("getWindowMinSize"),
         ),
-        Text("${_windowMinSize?.width.toInt()}, ${_windowMinSize?.height.toInt()}"),
       ],
     );
   }
 
-  TableRow _rowSetMinWindowSize(double maxEditHeight) {
-    return TableRow(
+  Widget _buildMinSizeSet() {
+    return Column(
       children: [
-        TextButton(
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 70,
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  label: Text("min width"),
+                ),
+                initialValue: "$_minWidth2",
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  if (value != null) {
+                    final width = int.tryParse(value);
+                    if (width != null) {
+                      _minWidth2 = width;
+                      return null;
+                    }
+                  }
+                  return "Invalid";
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            SizedBox(
+              width: 70,
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  label: Text("height"),
+                ),
+                initialValue: "$_minHeight2",
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  if (value != null) {
+                    final height = int.tryParse(value);
+                    if (height != null) {
+                      _minHeight2 = height;
+                      return null;
+                    }
+                  }
+                  return "Invalid";
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
           onPressed: () async => await WindowInterface.setWindowMinSize(
-            _setWindowMinWidth,
-            _setWindowMinHeight,
+            _minWidth2,
+            _minHeight2,
           ),
           child: const Text("setWindowMinSize"),
         ),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  prefixText: "width: ",
-                  constraints: BoxConstraints(maxHeight: maxEditHeight),
-                ),
-                controller: TextEditingController(text: "$_setWindowMinWidth"),
-                onChanged: (value) {
-                  int? width = int.tryParse(value);
-                  if (width != null) _setWindowMinWidth = width;
-                },
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  prefixText: "height: ",
-                  constraints: BoxConstraints(maxHeight: maxEditHeight),
-                ),
-                controller: TextEditingController(text: "$_setWindowMinHeight"),
-                onChanged: (value) {
-                  int? height = int.tryParse(value);
-                  if (height != null) _setWindowMinHeight = height;
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  TableRow _rowResetMinWindowSize() {
-    return TableRow(
-      children: [
-        TextButton(
+        const SizedBox(height: 10),
+        ElevatedButton(
           onPressed: () async => WindowInterface.resetWindowMinSize(),
           child: const Text("resetWindowMinSize"),
         ),
-        const Text("void"),
       ],
     );
   }
 
-  TableRow _rowGetMaxWindowSize() {
-    return TableRow(
+  Widget _buildMaxSizeGet() {
+    return Column(
       children: [
-        TextButton(
+        Text.rich(
+          TextSpan(
+            children: <InlineSpan>[
+              const WidgetSpan(
+                child: Text(
+                  'max width: ',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              WidgetSpan(
+                child: Text("${_maxSize?.width.toInt()}, "),
+              ),
+              const WidgetSpan(
+                child: Text(
+                  'max height: ',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              WidgetSpan(
+                child: Text("${_maxSize?.height.toInt()}"),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
           onPressed: () async {
             var size = await WindowInterface.getWindowMaxSize();
-            setState(() => _windowMaxSize = size);
+            setState(() => _maxSize = size);
           },
           child: const Text("getWindowMaxSize"),
         ),
-        Text("${_windowMaxSize?.width.toInt()}, ${_windowMaxSize?.height.toInt()}"),
       ],
     );
   }
 
-  TableRow _rowSetMaxWindowSize(double maxEditHeight) {
-    return TableRow(
+  Widget _buildMaxSizeSet() {
+    return Column(
       children: [
-        TextButton(
-          onPressed: () async =>
-              WindowInterface.setWindowMaxSize(_setWindowMaxWidth, _setWindowMaxHeight),
-          child: const Text("setWindowMaxSize"),
-        ),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  prefixText: "width: ",
-                  constraints: BoxConstraints(maxHeight: maxEditHeight),
+            SizedBox(
+              width: 70,
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  label: Text("max width"),
                 ),
-                controller: TextEditingController(text: "$_setWindowMaxWidth"),
-                onChanged: (value) {
-                  int? width = int.tryParse(value);
-                  if (width != null) _setWindowMaxWidth = width;
+                initialValue: "$_maxWidth2",
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  if (value != null) {
+                    final width = int.tryParse(value);
+                    if (width != null) {
+                      _maxWidth2 = width;
+                      return null;
+                    }
+                  }
+                  return "Invalid";
                 },
               ),
             ),
             const SizedBox(width: 10),
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  prefixText: "height: ",
-                  constraints: BoxConstraints(maxHeight: maxEditHeight),
+            SizedBox(
+              width: 70,
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  label: Text("max height"),
                 ),
-                controller: TextEditingController(text: "$_setWindowMaxHeight"),
-                onChanged: (value) {
-                  int? height = int.tryParse(value);
-                  if (height != null) _setWindowMaxHeight = height;
+                initialValue: "$_maxHeight2",
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  if (value != null) {
+                    final height = int.tryParse(value);
+                    if (height != null) {
+                      _maxHeight2 = height;
+                      return null;
+                    }
+                  }
+                  return "Invalid";
                 },
               ),
             ),
           ],
         ),
-      ],
-    );
-  }
-
-  TableRow _rowResetMaxWindowSize() {
-    return TableRow(
-      children: [
-        TextButton(
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () async => await WindowInterface.setWindowMaxSize(
+            _maxWidth2,
+            _maxHeight2,
+          ),
+          child: const Text("setWindowMaxSize"),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
           onPressed: () async => WindowInterface.resetWindowMaxSize(),
           child: const Text("resetWindowMaxSize"),
         ),
-        const Text("void"),
       ],
     );
   }
 
-  TableRow _rowSetStayOnTop() {
-    return TableRow(
+  Widget _buildSetStayOnTop() {
+    return Column(
       children: [
-        TableCell(
-          verticalAlignment: TableCellVerticalAlignment.middle,
-          child: TextButton(
-            onPressed: () async => WindowInterface.setStayOnTop(_setTopMost),
-            child: const Text("setStayOnTop"),
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'stay on top',
+              style: TextStyle(color: Colors.grey),
+            ),
+            Switch(
+              value: _isTopMost2,
+              onChanged: (value) {
+                setState(() => _isTopMost2 = value);
+              },
+            ),
+          ],
         ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Switch(
-            value: _setTopMost,
-            onChanged: (value) {
-              setState(() => _setTopMost = value);
-            },
-          ),
+        ElevatedButton(
+          onPressed: () async => WindowInterface.setStayOnTop(_isTopMost2),
+          child: const Text("setStayOnTop"),
         ),
       ],
     );
@@ -304,8 +490,6 @@ class _WindowInterfaceState extends State<WindowInterfaceDemo> {
 
   @override
   Widget build(BuildContext context) {
-    final double maxEditHeight = (Theme.of(context).textTheme.bodyText1?.fontSize ?? 14) * 2 + 10;
-
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.teal,
@@ -313,32 +497,62 @@ class _WindowInterfaceState extends State<WindowInterfaceDemo> {
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('WindowInterface Example'),
+          title: const Text('WindowInterface Demo'),
         ),
         body: Container(
           padding: const EdgeInsets.all(10),
           alignment: Alignment.center,
           child: SingleChildScrollView(
-            child: Table(
-              defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              columnWidths: const {
-                0: IntrinsicColumnWidth(),
-                1: IntrinsicColumnWidth(),
-              },
+            child: Wrap(
               children: [
-                _rowGetWindowSize(),
-                _rowGetMinWindowSize(),
-                _rowGetMaxWindowSize(),
-                _rowSetWindowSize(maxEditHeight),
-                _rowSetMinWindowSize(maxEditHeight),
-                _rowResetMinWindowSize(),
-                _rowSetMaxWindowSize(maxEditHeight),
-                _rowResetMaxWindowSize(),
-                _rowToggleFullScreen(),
-                _rowGetFullScreen(),
-                _rowSetFullScreen(),
-                _rowSetStayOnTop(),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildPlacementGet(),
+                        _buildPlacementSet(),
+                      ],
+                    ),
+                  ),
+                ),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: _buildFullScreen(),
+                  ),
+                ),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildMinSizeGet(),
+                        _buildMinSizeSet(),
+                      ],
+                    ),
+                  ),
+                ),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildMaxSizeGet(),
+                        _buildMaxSizeSet(),
+                      ],
+                    ),
+                  ),
+                ),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: _buildSetStayOnTop(),
+                  ),
+                ),
               ],
             ),
           ),
